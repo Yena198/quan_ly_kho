@@ -1,0 +1,143 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Product {
+public:
+    int id;
+    string name;
+    int quantity;
+    double price;
+
+    Product(int id, const string &name, int quantity, double price)
+        : id(id), name(name), quantity(quantity), price(price) {}
+};
+
+class Warehouse {
+private:
+    vector<Product> products;
+
+    auto findProduct(int id) {
+        return find_if(products.begin(), products.end(), [id](const Product &product) {
+            return product.id == id;
+        });
+    }
+
+public:
+    void addProduct(int id, const string &name, int quantity, double price) {
+        products.emplace_back(id, name, quantity, price);
+        cout << "\nSan pham da duoc them vao kho!" << endl;
+    }
+
+    void displayProducts() const {
+        if (products.empty()) {
+            cout << "\nKho hang dang trong!" << endl;
+            return;
+        }
+        cout << "\nDanh sach san pham trong kho:" << endl;
+        for (const auto &product : products) {
+            cout << "ID: " << product.id << " | Ten: " << product.name << " | So luong: " << product.quantity << " | Gia: " << product.price << endl;
+        }
+    }
+
+    void updateStock(int id, int qty, bool isAdding) {
+        auto it = findProduct(id);
+        if (it != products.end()) {
+            if (isAdding) {
+                it->quantity += qty;
+                cout << "\nDa nhap them " << qty << " san pham." << endl;
+            } else {
+                if (it->quantity >= qty) {
+                    it->quantity -= qty;
+                    cout << "\nDa xuat " << qty << " san pham." << endl;
+                } else {
+                    cout << "\nKhong du hang trong kho!" << endl;
+                }
+            }
+        } else {
+            cout << "\nKhong tim thay san pham!" << endl;
+        }
+    }
+
+    void searchProduct(int id) const {
+        auto it = findProduct(id);
+        if (it != products.end()) {
+            cout << "\nThong tin san pham:" << endl;
+            cout << "ID: " << it->id << " | Ten: " << it->name << " | So luong: " << it->quantity << " | Gia: " << it->price << endl;
+        } else {
+            cout << "\nKhong tim thay san pham!" << endl;
+        }
+    }
+
+    void deleteProduct(int id) {
+        auto it = findProduct(id);
+        if (it != products.end()) {
+            products.erase(it);
+            cout << "\nSan pham da bi xoa!" << endl;
+        } else {
+            cout << "\nKhong tim thay san pham de xoa!" << endl;
+        }
+    }
+};
+
+int main() {
+    Warehouse warehouse;
+    int choice;
+    do {
+        cout << "\n========== QUAN LY KHO ==========";
+        cout << "\n1. Them san pham";
+        cout << "\n2. Hien thi danh sach san pham";
+        cout << "\n3. Nhap kho";
+        cout << "\n4. Xuat kho";
+        cout << "\n5. Tim kiem san pham";
+        cout << "\n6. Xoa san pham";
+        cout << "\n0. Thoat";
+        cout << "\nChon: ";
+        cin >> choice;
+
+        int id, quantity;
+        string name;
+        double price;
+
+        switch (choice) {
+            case 1:
+                cout << "\nNhap ID san pham: "; cin >> id;
+                cout << "Nhap ten san pham: "; cin.ignore(); getline(cin, name);
+                cout << "Nhap so luong: "; cin >> quantity;
+                cout << "Nhap gia: "; cin >> price;
+                warehouse.addProduct(id, name, quantity, price);
+                break;
+            case 2:
+                warehouse.displayProducts();
+                break;
+            case 3:
+                cout << "\nNhap ID san pham: "; cin >> id;
+                cout << "Nhap so luong can nhap: "; cin >> quantity;
+                warehouse.updateStock(id, quantity, true);
+                break;
+            case 4:
+                cout << "\nNhap ID san pham: "; cin >> id;
+                cout << "Nhap so luong can xuat: "; cin >> quantity;
+                warehouse.updateStock(id, quantity, false);
+                break;
+            case 5:
+                cout << "\nNhap ID san pham: "; cin >> id;
+                warehouse.searchProduct(id);
+                break;
+            case 6:
+                cout << "\nNhap ID san pham can xoa: "; cin >> id;
+                warehouse.deleteProduct(id);
+                break;
+            case 0:
+                cout << "\nThoat chuong trinh...";
+                break;
+            default:
+                cout << "\nLua chon khong hop le!";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
